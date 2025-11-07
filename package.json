@@ -3,22 +3,23 @@
     "version": "0.0.0",
     "description": "Infrastructure DEfinitions",
     "scripts": {
-        "test": "nyc --reporter=text mocha --recursive --bail --require @babel/register/lib --require tests/setup.js tests",
-        "lint": "eslint src tests && prettier --write src tests",
-        "lint:fix": "eslint --fix --cache src tests && prettier --write src tests",
-        "transpile": "babel --out-dir dist src",
-        "postinstall": "npm run transpile",
-        "prettier": "prettier --check src tests",
-        "prepare": "husky install"
+        "test": "nyc --reporter=text mocha --recursive --bail",
+        "lint": "eslint --cache src/js tests/js && prettier --write src/js tests/js",
+        "lint:fix": "eslint --fix --cache src/js tests/js && prettier --write src/js tests/js",
+        "lint:staged": "lint-staged",
+        "prepare": "husky install",
+        "prettier": "prettier --check src/js tests/js",
+        "transpile": "babel --out-dir dist/js src/js",
+        "postinstall": "npm run transpile"
     },
     "repository": {
         "type": "git",
         "url": "https://github.com/Exabyte-io/ide.js.git"
     },
-    "main": "dist/index.js",
+    "main": "dist/js/index.js",
     "files": [
         "/dist",
-        "/src",
+        "/src/js",
         ".babelrc"
     ],
     "author": "Exabyte Inc.",
@@ -71,7 +72,13 @@
         "node": ">=14.0.0"
     },
     "lint-staged": {
-        "*.js": "eslint --cache --fix",
-        "*.{js,css}": "prettier --write"
+        "src/js/**/*.js": [
+            "eslint --fix --cache",
+            "prettier --write"
+        ],
+        "tests/js/**/*.js": [
+            "eslint --fix --cache",
+            "prettier --write"
+        ]
     }
 }

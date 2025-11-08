@@ -16,8 +16,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "License :: OSI Approved :: Apache Software License",
-    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Topic :: Software Development",
 ]
 dependencies = [
     "numpy",
@@ -30,20 +30,12 @@ tests = [
     "coverage[toml]>=6.0",
 ]
 
-[project.urls]
-Homepage = "https://github.com/Exabyte-io/ide.js"
-Documentation = "https://github.com/Exabyte-io/ide.js"
-Repository = "https://github.com/Exabyte-io/ide.js"
-Issues = "https://github.com/Exabyte-io/ide.js/issues"
-
 [tool.setuptools_scm]
+git_describe_command = "git describe --tags --long"
 write_to = "src/py/mat3ra/ide/_version.py"
 
 [tool.setuptools.packages.find]
 where = ["src/py"]
-
-[tool.setuptools.package-data]
-"*" = ["py.typed"]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
@@ -53,20 +45,6 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --strict-markers --disable-warnings"
-
-[tool.coverage.run]
-source = ["src/py"]
-omit = ["*/tests/*", "*/__pycache__/*", "*/.venv/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-]
 
 [tool.black]
 line-length = 120

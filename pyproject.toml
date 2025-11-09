@@ -32,7 +32,6 @@ tests = [
 
 [tool.setuptools_scm]
 git_describe_command = "git describe --tags --long"
-write_to = "src/py/mat3ra/ide/_version.py"
 
 [tool.setuptools.packages.find]
 where = ["src/py"]

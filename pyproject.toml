@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mat3ra-ide"
+dynamic = ["version"]
+description = "Infrastructure DEfinitions"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Exabyte Inc.", email = "info@mat3ra.com" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Development Status :: 3 - Alpha",
+    "Topic :: Software Development",
+]
+dependencies = [
+    "numpy",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest>=7.0.0",
+    "pytest-cov",
+    "coverage[toml]>=6.0",
+]
+
+[tool.setuptools_scm]
+git_describe_command = "git describe --tags --long"
+
+[tool.setuptools.packages.find]
+where = ["src/py"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests/py"]
+pythonpath = ["src/py"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers --disable-warnings"
+
+[tool.black]
+line-length = 120
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  | dist
+  | .eggs
+  | .git
+  | .venv
+  | build
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 120
+skip_gitignore = true
+known_first_party = ["mat3ra"]
+
+[tool.ruff]
+extend-exclude = [
+    "src/js",
+]
+line-length = 120
+target-version = "py310"

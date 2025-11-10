@@ -1,0 +1,6 @@
+{
+    "extension": ["js"],
+    "spec": "tests/js/**/*.test.js",
+    "require": ["@babel/register/lib", "tests/js/setup.js"]
+}
+

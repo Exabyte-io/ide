@@ -5,3 +5,13 @@ node_modules/
 .nyc_output/
 .idea/
 
+# Python
+.venv*
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+.coverage
+htmlcov/
+

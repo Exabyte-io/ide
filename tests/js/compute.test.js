@@ -3,7 +3,7 @@ import { InMemoryEntity } from "@mat3ra/code/dist/js/entity";
 import { expect } from "chai";
 import { mix } from "mixwith";
 
-import { ComputedEntityMixin } from "../src/compute";
+import { ComputedEntityMixin } from "../../src/js/compute";
 
 class Computer extends mix(InMemoryEntity).with(ComputedEntityMixin) {}
 

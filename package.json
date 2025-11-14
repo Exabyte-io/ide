@@ -1,5 +1,5 @@
 {
-    "name": "@exabyte-io/ide.js",
+    "name": "@mat3ra/ide",
     "version": "0.0.0",
     "description": "Infrastructure DEfinitions",
     "scripts": {
@@ -9,12 +9,11 @@
         "lint:staged": "lint-staged",
         "prepare": "husky install",
         "prettier": "prettier --check src/js tests/js",
-        "transpile": "babel --out-dir dist/js src/js",
-        "postinstall": "npm run transpile"
+        "transpile": "babel --out-dir dist/js src/js"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Exabyte-io/ide.js.git"
+        "url": "https://github.com/Exabyte-io/ide.git"
     },
     "main": "dist/js/index.js",
     "files": [
@@ -24,10 +23,10 @@
     ],
     "author": "Exabyte Inc.",
     "bugs": {
-        "url": "https://github.com/Exabyte-io/ide.js/issues"
+        "url": "https://github.com/Exabyte-io/ide/issues"
     },
     "license": "Apache-2.0",
-    "homepage": "https://github.com/Exabyte-io/ide.js",
+    "homepage": "https://github.com/Exabyte-io/ide",
     "dependencies": {
         "@babel/cli": "7.16.0",
         "@babel/core": "7.16.0",

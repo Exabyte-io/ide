@@ -1,9 +1,9 @@
-[![npm version](https://badge.fury.io/js/%40exabyte-io%2Fide.js.svg)](https://badge.fury.io/js/%40exabyte-io%2Fide.js)
+[![npm version](https://badge.fury.io/js/%40exabyte-io%2Fide.svg)](https://badge.fury.io/js/%40exabyte-io%2Fide)
 [![License: Apache](https://img.shields.io/badge/License-Apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-# ide.js
+# ide
 
-Infrastructure DEfinitions - ide.js - houses Infrastructure entity definitions for use in the Mat3ra platform.
+Infrastructure DEfinitions - ide - houses Infrastructure entity definitions for use in the Mat3ra platform.
 
 
 ### Installation
@@ -11,13 +11,13 @@ Infrastructure DEfinitions - ide.js - houses Infrastructure entity definitions f
 For usage within a javascript project:
 
 ```bash
-npm install @exabyte-io/ide.js
+npm install @exabyte-io/ide
 ```
 
 For development:
 
 ```bash
-git clone https://github.com/Exabyte-io/ide.js.git
+git clone https://github.com/Exabyte-io/ide.git
 ```
 
 

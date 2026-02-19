@@ -1,6 +1,5 @@
-import numpy as np
+from mat3ra.esse.models.job.compute import Queue
 
+from mat3ra.ide.compute import ComputeConfiguration
 
-def get_length(vec: np.ndarray) -> float:
-    return float(np.linalg.norm(vec))
-
+__all__ = ["ComputeConfiguration", "Queue"]

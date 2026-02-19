@@ -1,7 +1,6 @@
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from pydantic import Field, model_validator
+from pydantic import model_validator
 
 from mat3ra.code.entity import InMemoryEntityPydantic
 from mat3ra.esse.models.job.compute import Cluster as ClusterESSE
@@ -9,8 +8,7 @@ from mat3ra.esse.models.job.compute import ComputeArgumentsSchema
 from mat3ra.esse.models.job.compute import Queue as QueueName
 
 
-@dataclass
-class Queue:
+class Queue(InMemoryEntityPydantic):
     name: QueueName
     max_ppn: int
     max_nodes: int
@@ -29,7 +27,7 @@ class Queue:
 
 
 class Cluster(InMemoryEntityPydantic, ClusterESSE):
-    queues: List[Queue] = Field(default_factory=list)
+    queues: List[Queue] = []
 
     def get_queue(self, name: QueueName) -> Optional[Queue]:
         return next((q for q in self.queues if q.name == name), None)

@@ -1,7 +1,10 @@
 from typing import Optional
 
 from mat3ra.code.entity import InMemoryEntityPydantic
-from mat3ra.esse.models.job.compute import Cluster, Queue
+from mat3ra.esse.models.job.compute import Cluster as ClusterESSE, Queue
+
+class Cluster(InMemoryEntityPydantic, ClusterESSE):
+    pass
 
 
 class ComputeConfiguration(InMemoryEntityPydantic):

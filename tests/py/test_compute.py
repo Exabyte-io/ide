@@ -1,5 +1,5 @@
 from mat3ra.ide.compute import ComputeConfiguration
-from mat3ra.ide.compute import Cluster, Queue
+from mat3ra.ide import Cluster, Queue
 
 
 def test_compute_configuration():

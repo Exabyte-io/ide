@@ -1,3 +1,4 @@
+import warnings
 from typing import Any, Dict, List, Optional
 
 from pydantic import model_validator
@@ -72,7 +73,9 @@ class Compute(InMemoryEntityPydantic, ComputeArgumentsSchema):
         if not queue:
             return self
         if self.ppn > queue.max_ppn:
-            raise ValueError(f"ppn={self.ppn} exceeds max_ppn={queue.max_ppn} for {self.queue.value}")
+            warnings.warn(f"ppn={self.ppn} exceeds max_ppn={queue.max_ppn} for {self.queue.value}, set to {queue.max_ppn}.")
+            self.ppn = queue.max_ppn
         if self.nodes > queue.max_nodes:
-            raise ValueError(f"nodes={self.nodes} exceeds max_nodes={queue.max_nodes} for {self.queue.value}")
+            warnings.warn(f"nodes={self.nodes} exceeds max_nodes={queue.max_nodes} for {self.queue.value}, set to {queue.max_nodes}.")
+            self.nodes = queue.max_nodes
         return self

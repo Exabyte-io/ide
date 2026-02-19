@@ -37,13 +37,15 @@ def test_compute_valid():
 
 
 def test_compute_ppn_exceeds_limit():
-    with pytest.raises(ValueError, match="ppn=17 exceeds max_ppn=16"):
-        Compute(cluster=CLUSTER_WITH_QUEUES, queue=QueueName.D, ppn=17, nodes=1)
+    with pytest.warns(UserWarning, match="ppn=17 exceeds max_ppn=16.*set to 16"):
+        compute = Compute(cluster=CLUSTER_WITH_QUEUES, queue=QueueName.D, ppn=17, nodes=1)
+    assert compute.ppn == 16
 
 
 def test_compute_nodes_exceeds_limit():
-    with pytest.raises(ValueError, match="nodes=11 exceeds max_nodes=10"):
-        Compute(cluster=CLUSTER_WITH_QUEUES, queue=QueueName.D, ppn=1, nodes=11)
+    with pytest.warns(UserWarning, match="nodes=11 exceeds max_nodes=10.*set to 10"):
+        compute = Compute(cluster=CLUSTER_WITH_QUEUES, queue=QueueName.D, ppn=1, nodes=11)
+    assert compute.nodes == 10
 
 
 def test_compute_to_dict():

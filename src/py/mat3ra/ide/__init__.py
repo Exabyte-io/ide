@@ -1,5 +1,3 @@
-from mat3ra.esse.models.job.compute import Queue
+from mat3ra.ide.compute import Cluster, Compute, Queue, QueueName
 
-from mat3ra.ide.compute import ComputeConfiguration, Cluster
-
-__all__ = ["ComputeConfiguration", "Queue", "Cluster"]
+__all__ = ["Cluster", "Compute", "Queue", "QueueName"]

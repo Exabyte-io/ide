@@ -16,3 +16,6 @@ def test_compute_configuration():
     assert compute.cluster is not None
     assert compute.cluster.fqdn == "master-1-staging.exabyte.io"
     assert compute.cluster.jid is None
+
+    config = compute.to_dict()
+    assert config["queue"] == "D"

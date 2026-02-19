@@ -12,6 +12,7 @@ class ComputeConfiguration(InMemoryEntityPydantic, ComputeArgumentsSchema):
     queue: Queue
     nodes: int = 1
     ppn: int = 1
+    # ESSE should define default
     timeLimit: Optional[str] = "01:00:00"
     cluster: Optional[Cluster] = None
     # This should be defined based on the queue (or cluster) used

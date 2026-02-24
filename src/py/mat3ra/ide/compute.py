@@ -19,16 +19,6 @@ class Cluster(ClusterESSE, InMemoryEntitySnakeCase):
     def get_queue(self, name: QueueName) -> Optional[Queue]:
         return next((q for q in self.queues if q.name == name), None)
 
-    @classmethod
-    def from_api_data(cls, data: Dict[str, Any]) -> "Cluster":
-        queues = []
-        for q in data.get("queues", []):
-            try:
-                queues.append(Queue.create(q))
-            except (ValueError, KeyError):
-                pass
-        return cls(fqdn=data["hostname"], queues=queues)
-
 
 class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     queue: QueueName
@@ -38,16 +28,6 @@ class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     timeLimit: Optional[str] = "01:00:00"
     cluster: Optional[Cluster] = None
 
-    @classmethod
-    def from_config(cls, data: Dict[str, Any]) -> "Compute":
-        cluster = Cluster(fqdn=data["cluster"]["fqdn"]) if data.get("cluster") else None
-        return cls(
-            queue=QueueName(data["queue"]),
-            nodes=data.get("nodes", 1),
-            ppn=data.get("ppn", 1),
-            timeLimit=data.get("timeLimit", "01:00:00"),
-            cluster=cluster,
-        )
 
     @model_validator(mode="after")
     def validate_limits(self) -> "Compute":

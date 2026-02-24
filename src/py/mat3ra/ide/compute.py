@@ -3,31 +3,17 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import model_validator
 
-from mat3ra.code.entity import InMemoryEntityPydantic
+from mat3ra.code.entity import InMemoryEntitySnakeCase
 from mat3ra.esse.models.job.compute import Cluster as ClusterESSE
 from mat3ra.esse.models.job.compute import ComputeArgumentsSchema
-from mat3ra.esse.models.job.compute import Queue as QueueName
+from mat3ra.esse.models.job.queue import Name as QueueName, QueueSchema
 
 
-class Queue(InMemoryEntityPydantic):
-    name: QueueName
-    max_ppn: int
-    max_nodes: int
-    available_nodes: int
-    current_nodes: int
-
-    @classmethod
-    def from_api_data(cls, data: Dict[str, Any]) -> "Queue":
-        return cls(
-            name=QueueName(data["NAME"]),
-            max_ppn=data["MAX-PPN"],
-            max_nodes=data["NODE-LIMIT"],
-            available_nodes=data["MAX-AVAILABLE-NODECT"],
-            current_nodes=data["CURRENT-NODECT"],
-        )
+class Queue(QueueSchema, InMemoryEntitySnakeCase):
+    pass
 
 
-class Cluster(InMemoryEntityPydantic, ClusterESSE):
+class Cluster(ClusterESSE, InMemoryEntitySnakeCase):
     queues: List[Queue] = []
 
     def get_queue(self, name: QueueName) -> Optional[Queue]:
@@ -38,20 +24,19 @@ class Cluster(InMemoryEntityPydantic, ClusterESSE):
         queues = []
         for q in data.get("queues", []):
             try:
-                queues.append(Queue.from_api_data(q))
+                queues.append(Queue.create(q))
             except (ValueError, KeyError):
                 pass
         return cls(fqdn=data["hostname"], queues=queues)
 
 
-class Compute(InMemoryEntityPydantic, ComputeArgumentsSchema):
+class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     queue: QueueName
     nodes: int = 1
     ppn: int = 1
     # ESSE should define default
     timeLimit: Optional[str] = "01:00:00"
     cluster: Optional[Cluster] = None
-    maxCPU: Optional[int] = None
 
     @classmethod
     def from_config(cls, data: Dict[str, Any]) -> "Compute":
@@ -62,7 +47,6 @@ class Compute(InMemoryEntityPydantic, ComputeArgumentsSchema):
             ppn=data.get("ppn", 1),
             timeLimit=data.get("timeLimit", "01:00:00"),
             cluster=cluster,
-            maxCPU=data.get("maxCPU"),
         )
 
     @model_validator(mode="after")

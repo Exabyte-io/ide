@@ -2,10 +2,10 @@ import pytest
 
 from mat3ra.ide import Cluster, Compute, Queue, QueueName
 
-FQDN = "master-1-staging.exabyte.io"
+FQDN = "master-1-staging.mat3ra.com"
 
-QUEUE_D = Queue(name=QueueName.D, max_ppn=16, max_nodes=10, available_nodes=8, current_nodes=2)
-QUEUE_OR = Queue(name=QueueName.OR, max_ppn=8, max_nodes=5, available_nodes=3, current_nodes=1)
+QUEUE_D = Queue(name=QueueName.D, maxPpn=16, maxNodes=10, availableNodes=8, currentNodes=2)
+QUEUE_OR = Queue(name=QueueName.OR, maxPpn=8, maxNodes=5, availableNodes=3, currentNodes=1)
 
 CLUSTER_WITH_QUEUES = Cluster(fqdn=FQDN, queues=[QUEUE_D, QUEUE_OR])
 CLUSTER_NO_QUEUES = Cluster(fqdn=FQDN)
@@ -13,10 +13,10 @@ CLUSTER_NO_QUEUES = Cluster(fqdn=FQDN)
 
 def test_queue_fields():
     assert QUEUE_D.name == QueueName.D
-    assert QUEUE_D.max_ppn == 16
-    assert QUEUE_D.max_nodes == 10
-    assert QUEUE_D.available_nodes == 8
-    assert QUEUE_D.current_nodes == 2
+    assert QUEUE_D.maxPpn == 16
+    assert QUEUE_D.maxNodes == 10
+    assert QUEUE_D.availableNodes == 8
+    assert QUEUE_D.currentNodes == 2
 
 
 def test_cluster_get_queue_found():

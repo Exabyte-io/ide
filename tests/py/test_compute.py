@@ -52,3 +52,5 @@ def test_compute_to_dict():
     config = compute.to_dict()
     assert config["queue"] == "D"
     assert config["ppn"] == 4
+    assert config["cluster"]["fqdn"] == HOSTNAME
+    assert "queues" not in config["cluster"]

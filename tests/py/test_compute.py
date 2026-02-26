@@ -2,14 +2,13 @@ import pytest
 
 from mat3ra.ide import Cluster, Compute, Queue, QueueName
 
-FQDN = "master-1-staging.mat3ra.com"
+HOSTNAME = "master-1-staging.mat3ra.com"
 
 QUEUE_D = Queue(name=QueueName.D, maxPpn=16, maxNodes=10, availableNodes=8, currentNodes=2)
 QUEUE_OR = Queue(name=QueueName.OR, maxPpn=8, maxNodes=5, availableNodes=3, currentNodes=1)
 
-CLUSTER_WITH_QUEUES = Cluster(fqdn=FQDN, queues=[QUEUE_D, QUEUE_OR])
-CLUSTER_NO_QUEUES = Cluster(fqdn=FQDN)
-
+CLUSTER_WITH_QUEUES = Cluster(hostname=HOSTNAME, queues=[QUEUE_D, QUEUE_OR])
+CLUSTER_NO_QUEUES = Cluster(hostname=HOSTNAME, queues=[])
 
 def test_queue_fields():
     assert QUEUE_D.name == QueueName.D
@@ -33,7 +32,7 @@ def test_compute_valid():
     assert compute.queue == QueueName.D
     assert compute.ppn == 16
     assert compute.nodes == 10
-    assert compute.cluster.fqdn == FQDN
+    assert compute.cluster.hostname == HOSTNAME
 
 
 def test_compute_ppn_exceeds_limit():

@@ -1,19 +1,18 @@
 import warnings
-from typing import Any, Dict, List, Optional
-
-from pydantic import model_validator
+from typing import List, Optional
 
 from mat3ra.code.entity import InMemoryEntitySnakeCase
-from mat3ra.esse.models.job.compute import Cluster as ClusterESSE
+from mat3ra.esse.models.compute.nodes.cluster import ClusterNodeSchema
 from mat3ra.esse.models.job.compute import ComputeArgumentsSchema
 from mat3ra.esse.models.job.queue import Name as QueueName, QueueSchema
+from pydantic import model_validator
 
 
 class Queue(QueueSchema, InMemoryEntitySnakeCase):
     pass
 
 
-class Cluster(ClusterESSE, InMemoryEntitySnakeCase):
+class Cluster(ClusterNodeSchema, InMemoryEntitySnakeCase):
     queues: List[Queue] = []
 
     def get_queue(self, name: QueueName) -> Optional[Queue]:

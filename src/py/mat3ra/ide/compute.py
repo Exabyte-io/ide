@@ -27,7 +27,6 @@ class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     timeLimit: Optional[str] = "01:00:00"
     cluster: Optional[Cluster] = None
 
-
     @model_validator(mode="after")
     def validate_limits(self) -> "Compute":
         if not self.cluster:
@@ -36,9 +35,14 @@ class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
         if not queue:
             return self
         if self.ppn > queue.max_ppn:
-            warnings.warn(f"ppn={self.ppn} exceeds max_ppn={queue.max_ppn} for {self.queue.value}, set to {queue.max_ppn}.")
+            msg = f"ppn={self.ppn} exceeds max_ppn={queue.max_ppn} for {self.queue.value}, set to {queue.max_ppn}."
+            warnings.warn(msg)
             self.ppn = queue.max_ppn
         if self.nodes > queue.max_nodes:
-            warnings.warn(f"nodes={self.nodes} exceeds max_nodes={queue.max_nodes} for {self.queue.value}, set to {queue.max_nodes}.")
+            msg = (
+                f"nodes={self.nodes} exceeds max_nodes={queue.max_nodes} for "
+                f"{self.queue.value}, set to {queue.max_nodes}."
+            )
+            warnings.warn(msg)
             self.nodes = queue.max_nodes
         return self

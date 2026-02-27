@@ -54,3 +54,26 @@ def test_compute_to_dict():
     assert config["ppn"] == 4
     assert config["cluster"]["fqdn"] == HOSTNAME
     assert "queues" not in config["cluster"]
+
+
+def test_compute_to_dict_serializes_compute_cluster_from_backend_payload():
+    backend_cluster_payload = {
+        "hostname": HOSTNAME,
+        "type": "cluster",
+        "isDefault": True,
+        "isAvailable": True,
+        "queues": [
+            {
+                "name": "D",
+                "maxPPN": 2,
+                "maxNodes": 10,
+                "availableNodes": 9,
+                "currentNodes": 1,
+                "capacity": "FULL",
+            },
+        ],
+    }
+
+    compute = Compute(cluster=backend_cluster_payload, queue=QueueName.D, ppn=2, nodes=1)
+    config = compute.to_dict()
+    assert config["cluster"] == {"fqdn": HOSTNAME}

@@ -32,15 +32,13 @@ class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     timeLimit: Optional[str] = "01:00:00"
     cluster: Optional[Cluster | ComputeCluster] = None
 
-    @field_serializer("cluster", when_used="json")
+    @field_serializer("cluster", when_used="always")
     def serialize_cluster(self, cluster: Optional[Cluster | ComputeCluster]):
-        # Only ComputeCluster must be used for serialization
+        # Always serialize as a minimal ComputeCluster (fqdn only).
         if cluster is None:
             return None
-        if isinstance(cluster, ComputeCluster):
-            return cluster
-        hostname = getattr(cluster, "hostname", None)
-        return ComputeCluster(fqdn=hostname) if hostname else None
+        fqdn = getattr(cluster, "fqdn", None) or getattr(cluster, "hostname", None)
+        return ComputeCluster(fqdn=fqdn) if fqdn else None
 
     @model_validator(mode="after")
     def validate_limits(self) -> "Compute":

@@ -16,7 +16,7 @@ class Queue(QueueSchema, InMemoryEntitySnakeCase):
 class Cluster(ClusterNodeSchema, InMemoryEntitySnakeCase):
     queues: List[Queue] = []
 
-    def get_queue(self, name: QueueName) -> Optional[Queue]:
+    def get_queue_by_name(self, name: QueueName) -> Optional[Queue]:
         return next((q for q in self.queues if q.name == name), None)
 
 
@@ -44,7 +44,7 @@ class Compute(ComputeArgumentsSchema, InMemoryEntitySnakeCase):
     def validate_limits(self) -> "Compute":
         if not self.cluster or not isinstance(self.cluster, Cluster):
             return self
-        queue = self.cluster.get_queue(self.queue)
+        queue = self.cluster.get_queue_by_name(self.queue)
         if not queue:
             return self
         if self.ppn > queue.max_ppn:

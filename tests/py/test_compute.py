@@ -19,12 +19,12 @@ def test_queue_fields():
 
 
 def test_cluster_get_queue_found():
-    assert CLUSTER_WITH_QUEUES.get_queue(QueueName.D) == QUEUE_D
-    assert CLUSTER_WITH_QUEUES.get_queue(QueueName.OR) == QUEUE_OR
+    assert CLUSTER_WITH_QUEUES.get_queue_by_name(QueueName.D) == QUEUE_D
+    assert CLUSTER_WITH_QUEUES.get_queue_by_name(QueueName.OR) == QUEUE_OR
 
 
 def test_cluster_get_queue_not_found():
-    assert CLUSTER_WITH_QUEUES.get_queue(QueueName.SF) is None
+    assert CLUSTER_WITH_QUEUES.get_queue_by_name(QueueName.SF) is None
 
 
 def test_compute_valid():

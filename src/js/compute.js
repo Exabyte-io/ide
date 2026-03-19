@@ -5,6 +5,27 @@ import { getDefaultComputeConfig, getExternalBucket } from "./default";
 import { QUEUE_TYPES } from "./nodes/enums";
 import { wallTimeToHours } from "./utils/time";
 
+export function getHomeDir(isEnterprise, username) {
+    return isEnterprise ? `/cluster-???-share/groups/${username}` : `/cluster-???-home/${username}`;
+}
+
+export function getDefaultClusterQuota(defaultClusterHostname, username, isEnterprise = false) {
+    return [
+        {
+            hostname: defaultClusterHostname,
+            path: getHomeDir(isEnterprise, username),
+            items: {
+                bused: 0,
+                bsoft: 0,
+                bhard: 10737418240,
+                iused: 0,
+                isoft: 0,
+                ihard: 10737418240,
+            },
+        },
+    ];
+}
+
 export const ComputedEntityMixin = (superclass) =>
     class extends superclass {
         static getDefaultComputeConfig = getDefaultComputeConfig;

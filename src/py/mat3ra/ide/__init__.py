@@ -1,6 +1,3 @@
-import numpy as np
+from mat3ra.ide.compute import Cluster, Compute, Queue, QueueName
 
-
-def get_length(vec: np.ndarray) -> float:
-    return float(np.linalg.norm(vec))
-
+__all__ = ["Cluster", "Compute", "Queue", "QueueName"]

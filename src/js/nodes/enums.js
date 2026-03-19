@@ -45,15 +45,15 @@ export const QUEUE_DISPLAY = {
     GOF: "1 GPU ordinary fast (GOF)",
     G4OF: "4 GPUs ordinary fast (G4OF)",
     G8OF: "8 GPUs ordinary fast (G8OF)",
-    GPOF: "1 P100 GPU ordinary fast (GPOF)",
-    GP2OF: "2 P100 GPUs ordinary fast (GP2OF)",
-    GP4OF: "4 P100 GPUs ordinary fast (GP4OF)",
+    GPOF: "1 GPU ordinary fast (GPOF)",
+    GP2OF: "2 GPUs ordinary fast (GP2OF)",
+    GP4OF: "4 GPUs ordinary fast (GP4OF)",
     GSF: "1 GPU saving fast (GSF)",
     G4SF: "4 GPUs saving fast (G4SF)",
     G8SF: "8 GPUs saving fast (G8SF)",
-    GPSF: "1 P100 GPU saving fast (GPSF)",
-    GP2SF: "2 P100 GPUs saving fast (GP2SF)",
-    GP4SF: "4 P100 GPUs saving fast (GP4SF)",
+    GPSF: "1 GPU saving fast (GPSF)",
+    GP2SF: "2 GPUs saving fast (GP2SF)",
+    GP4SF: "4 GPUs saving fast (GP4SF)",
 };
 export const ETA = {
     withinOneMin: {

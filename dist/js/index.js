@@ -63,6 +63,12 @@ Object.defineProperty(exports, "daysToMonths", {
     return _time.daysToMonths;
   }
 });
+Object.defineProperty(exports, "getDefaultClusterQuota", {
+  enumerable: true,
+  get: function () {
+    return _compute.getDefaultClusterQuota;
+  }
+});
 Object.defineProperty(exports, "getDefaultComputeConfig", {
   enumerable: true,
   get: function () {
@@ -73,6 +79,12 @@ Object.defineProperty(exports, "getExternalBucket", {
   enumerable: true,
   get: function () {
     return _default.getExternalBucket;
+  }
+});
+Object.defineProperty(exports, "getHomeDir", {
+  enumerable: true,
+  get: function () {
+    return _compute.getHomeDir;
   }
 });
 Object.defineProperty(exports, "pythonUnixTimeToJs", {

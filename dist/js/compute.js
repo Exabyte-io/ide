@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.ComputedEntityMixin = void 0;
+exports.getDefaultClusterQuota = getDefaultClusterQuota;
+exports.getHomeDir = getHomeDir;
 
 var _lodash = _interopRequireDefault(require("lodash"));
 
@@ -18,6 +20,25 @@ var _time = require("./utils/time");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function getHomeDir(isEnterprise, username) {
+  return isEnterprise ? `/cluster-???-share/groups/${username}` : `/cluster-???-home/${username}`;
+}
+
+function getDefaultClusterQuota(defaultClusterHostname, username, isEnterprise = false) {
+  return [{
+    hostname: defaultClusterHostname,
+    path: getHomeDir(isEnterprise, username),
+    items: {
+      bused: 0,
+      bsoft: 0,
+      bhard: 10737418240,
+      iused: 0,
+      isoft: 0,
+      ihard: 10737418240
+    }
+  }];
+}
 
 const ComputedEntityMixin = superclass => {
   var _class;

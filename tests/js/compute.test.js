@@ -1,11 +1,13 @@
+/* eslint-disable prettier/prettier */
 /* eslint-disable max-classes-per-file */
 import { InMemoryEntity } from "@mat3ra/code/dist/js/entity";
 import { expect } from "chai";
-import { mix } from "mixwith";
 
-import { ComputedEntityMixin } from "../../src/js/compute";
+import { computedEntityMixin } from "../../src/js/compute";
+import { getDefaultComputeConfig } from "../../src/js/default";
 
-class Computer extends mix(InMemoryEntity).with(ComputedEntityMixin) {}
+class Computer extends InMemoryEntity {}
+computedEntityMixin(Computer.prototype);
 
 function assertApproximateCharge(compute, expectedCharge) {
     const settings = { baseChargeRate: 1 };
@@ -20,11 +22,8 @@ function assertApproximateCharge(compute, expectedCharge) {
 }
 
 describe("Model", () => {
-    const obj = {};
-
     it("can be created", () => {
-        const app = new Computer(obj);
-        const config = app.constructor.getDefaultComputeConfig();
+        const config = getDefaultComputeConfig();
         expect(config.ppn).to.equal(1);
     });
 

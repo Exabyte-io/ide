@@ -9,7 +9,7 @@
         "lint:staged": "lint-staged",
         "prepare": "husky install",
         "prettier": "prettier --check src/js tests/js",
-        "transpile": "babel --out-dir dist/js src/js"
+        "transpile": "babel --out-dir dist/js src/js && cp src/js/compute.d.ts dist/js/compute.d.ts"
     },
     "repository": {
         "type": "git",
@@ -37,7 +37,6 @@
         "@babel/register": "^7.16.0",
         "@babel/runtime-corejs3": "7.16.8",
         "chai": "^4.3.4",
-        "lodash": "^4.17.21",
         "moment": "^2.17.1",
         "pluralize": "^3.0.0"
     },

@@ -1,4 +1,12 @@
 {
-    "extends": ["@exabyte-io/eslint-config"]
+    "extends": ["@exabyte-io/eslint-config"],
+    "ignorePatterns": ["dist/"],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        }
+    }
 }
 

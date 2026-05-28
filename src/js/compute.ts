@@ -4,11 +4,44 @@ import { getExternalBucket } from "./default";
 import { QUEUE_TYPES } from "./nodes/enums";
 import { wallTimeToHours } from "./utils/time";
 
-export function getHomeDir(isEnterprise, username) {
+/** Instance API mixed by {@link computedEntityMixin}. */
+export type ComputedEntityMixin = {
+    setCompute(compute: Record<string, unknown>): void;
+    unsetCompute(): void;
+    getApproximateCharge(
+        settings: { baseChargeRate: number },
+        queueMultipliers?: Record<string, number> | null,
+    ): number;
+
+    readonly compute: unknown;
+    readonly clusterJid: unknown;
+    readonly clusterFqdn: string | undefined;
+    readonly clusterFqdnShort: string;
+    readonly timeLimit: unknown;
+    readonly computeQueue: unknown;
+    readonly computePPN: number;
+    readonly computeNodes: number;
+    readonly computeNodesAndPPN: string;
+    readonly timePrediction: number;
+    readonly errors: unknown[];
+    readonly hasWarnings: boolean;
+    readonly warnings: Array<{ condition: boolean; message: string }>;
+    readonly isExternalJob: boolean;
+    readonly bucket: string;
+    readonly filesRootDir: string;
+};
+
+export type WithComputedEntity<T> = T & ComputedEntityMixin;
+
+export function getHomeDir(isEnterprise: boolean, username: string): string {
     return isEnterprise ? `/cluster-???-share/groups/${username}` : `/cluster-???-home/${username}`;
 }
 
-export function getDefaultClusterQuota(defaultClusterHostname, username, isEnterprise = false) {
+export function getDefaultClusterQuota(
+    defaultClusterHostname: string,
+    username: string,
+    isEnterprise = false,
+) {
     return [
         {
             hostname: defaultClusterHostname,
@@ -26,11 +59,13 @@ export function getDefaultClusterQuota(defaultClusterHostname, username, isEnter
 }
 
 /**
- * @param {Object} prototype — typically `SomeEntity.prototype`
+ * @param prototype — typically `SomeEntity.prototype`
  */
-export function computedEntityMixin(prototype) {
-    const computedEntityProperties = {
-        _computeProp(key, defaultValue) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function computedEntityMixin(prototype: object): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const computedEntityProperties: any = {
+        _computeProp(key: string, defaultValue?: unknown) {
             return this.prop("compute." + key, defaultValue);
         },
 
@@ -38,7 +73,7 @@ export function computedEntityMixin(prototype) {
             return this.prop("compute");
         },
 
-        setCompute(compute) {
+        setCompute(compute: Record<string, unknown>) {
             if (compute.queue === QUEUE_TYPES.debug) delete compute.maxCPU;
             this.setProp("compute", compute);
         },
@@ -96,7 +131,10 @@ export function computedEntityMixin(prototype) {
             );
         },
 
-        getApproximateCharge(settings, queueMultipliers = null) {
+        getApproximateCharge(
+            settings: { baseChargeRate: number },
+            queueMultipliers: Record<string, number> | null = null,
+        ) {
             const timeLimitInHours = wallTimeToHours(this.timeLimit);
 
             const queueMultiplier = queueMultipliers ? queueMultipliers[this.computeQueue] : 1;
@@ -116,7 +154,9 @@ export function computedEntityMixin(prototype) {
         },
 
         get hasWarnings() {
-            return this.warnings.map((o) => o.condition).some((x) => x);
+            return this.warnings
+                .map((o: { condition: boolean }) => o.condition)
+                .some((x: boolean) => x);
         },
 
         /*

@@ -3,20 +3,20 @@
 import { InMemoryEntity } from "@mat3ra/code/dist/js/entity";
 import { expect } from "chai";
 
-import { computedEntityMixin } from "../../src/js/compute";
+import { computedEntityMixin, WithComputedEntity } from "../../src/js/compute";
 import { getDefaultComputeConfig } from "../../src/js/default";
 
 class Computer extends InMemoryEntity {}
 computedEntityMixin(Computer.prototype);
 
-function assertApproximateCharge(compute, expectedCharge) {
+function assertApproximateCharge(compute: Record<string, unknown>, expectedCharge: number) {
     const settings = { baseChargeRate: 1 };
     const queueMultipliers = {
         D: 2,
         OR: 1,
     };
 
-    const app = new Computer({ compute });
+    const app = new Computer({ compute }) as WithComputedEntity<Computer>;
     const charge = app.getApproximateCharge(settings, queueMultipliers);
     expect(charge).to.equal(expectedCharge);
 }

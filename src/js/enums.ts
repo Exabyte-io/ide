@@ -1,4 +1,4 @@
-export const EMAIL_NOTIFICATION_OPTIONS_PBS = [
+export const EMAIL_NOTIFICATION_OPTIONS_PBS: Array<{ label: string; value: string }> = [
     {
         label: "never",
         value: "n",
@@ -19,18 +19,20 @@ export const EMAIL_NOTIFICATION_OPTIONS_PBS = [
 
 // TODO: adjust to make modular to work not only with PBS, but SLURM etc.
 class RMSNotificationsHandler {
-    constructor(type) {
+    type: string;
+
+    constructor(type: string) {
         this.type = type;
     }
 
-    get options() {
-        const config = {
+    get options(): Array<{ label: string; value: string }> {
+        const config: Record<string, Array<{ label: string; value: string }>> = {
             PBS: EMAIL_NOTIFICATION_OPTIONS_PBS,
         };
         return config[this.type] || EMAIL_NOTIFICATION_OPTIONS_PBS;
     }
 
-    _getOptionValueByLabel(label) {
+    _getOptionValueByLabel(label: string): string | undefined {
         return (this.options.find((o) => o.label === label) || {}).value;
     }
 
@@ -51,7 +53,7 @@ class RMSNotificationsHandler {
     }
 
     get abe() {
-        return this.abort + this.begin + this.end;
+        return (this.abort || "") + (this.begin || "") + (this.end || "");
     }
 }
 

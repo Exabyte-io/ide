@@ -56,8 +56,7 @@ exports.wallTimeToDays = wallTimeToDays;
  * @return
  */
 function pythonUnixTimeToJs(timestamp) {
-    // eslint-disable-next-line radix
-    return parseInt(String(timestamp * 1000));
+    return Math.trunc(timestamp * 1000);
 }
 exports.pythonUnixTimeToJs = pythonUnixTimeToJs;
 /**

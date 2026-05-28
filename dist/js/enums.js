@@ -46,7 +46,8 @@ class RMSNotificationsHandler {
         return this._getOptionValueByLabel("end");
     }
     get abe() {
-        return (this.abort || "") + (this.begin || "") + (this.end || "");
+        var _a, _b, _c;
+        return ((_a = this.abort) !== null && _a !== void 0 ? _a : "") + ((_b = this.begin) !== null && _b !== void 0 ? _b : "") + ((_c = this.end) !== null && _c !== void 0 ? _c : "");
     }
 }
 const handler = new RMSNotificationsHandler("PBS");

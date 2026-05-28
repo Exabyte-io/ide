@@ -53,7 +53,7 @@ class RMSNotificationsHandler {
     }
 
     get abe() {
-        return (this.abort || "") + (this.begin || "") + (this.end || "");
+        return (this.abort ?? "") + (this.begin ?? "") + (this.end ?? "");
     }
 }
 

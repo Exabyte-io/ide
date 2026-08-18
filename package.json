@@ -9,7 +9,8 @@
         "lint:staged": "lint-staged",
         "prepare": "husky install",
         "prettier": "prettier --check src/js tests/js",
-        "transpile": "babel --out-dir dist/js src/js && cp src/js/compute.d.ts dist/js/compute.d.ts"
+        "transpile": "babel --out-dir dist/js src/js && cp src/js/compute.d.ts dist/js/compute.d.ts",
+        "prepublishOnly": "npm run transpile"
     },
     "repository": {
         "type": "git",
@@ -41,8 +42,8 @@
         "pluralize": "^3.0.0"
     },
     "devDependencies": {
-        "@mat3ra/code": "2024.3.25-3",
-        "@mat3ra/esse": "2024.3.25-6",
+        "@mat3ra/code": "2026.8.18-0",
+        "@mat3ra/esse": "2026.8.18-2",
         "@exabyte-io/eslint-config": "^2022.11.17-0",
         "chai": "^4.3.4",
         "eslint": "7.32.0",

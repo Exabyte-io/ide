@@ -60,7 +60,6 @@ export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSch
         warnings: Array<{ condition: boolean; message: string }>;
         readonly isExternalJob: boolean;
         readonly bucket: string;
-        readonly filesRootDir: string;
     };
 
 export type WithComputedEntity<
@@ -70,21 +69,15 @@ export type WithComputedEntity<
 
 /**
  * The host schema {@link computedEntityMixin} needs beyond `compute` itself and the base
- * `InMemoryEntity` fields (`_id`, `slug`, ...): `owner`/`isExternal`/`createdAt`/`workDir` are not
- * part of esse's bare `job`/`workflow` schemas (they come from a host application's own further
- * composition, e.g. web-app's `webapp/job`), so a caller's concrete schema only needs to be
- * *assignable to* this - which any schema missing these (all-optional) fields already is.
+ * `InMemoryEntity` fields (`_id`, `slug`, ...): `owner`/`isExternal` are not part of esse's bare
+ * `job`/`workflow` schemas (they come from a host application's own further composition, e.g.
+ * web-app's `webapp/job`), so a caller's concrete schema only needs to be *assignable to* this -
+ * which any schema missing these (all-optional) fields already is.
  */
 type ComputedEntityHostSchema<C extends AnyComputeSchema> = BaseInMemoryEntitySchema &
     ComputeField<C> & {
         isExternal?: boolean;
-        createdAt?: string | number;
-        workDir?: string;
-        owner?: {
-            slug?: string;
-            isPersonal?: boolean;
-            serviceLevel?: { nameBasedModifier?: number };
-        };
+        owner?: { serviceLevel?: { nameBasedModifier?: number } };
     };
 
 /** What `this` resolves to inside the property literal below - same idiom as a generated `*SchemaMixin`. */
@@ -256,23 +249,6 @@ export function computedEntityMixin<
                     : getExternalBucket().name;
             }
             return this.clusterFqdn?.match(/master-(.*).(exabyte.io|mat3ra.com)/)?.[1] ?? "";
-        },
-
-        /*
-         * @summary: returns files root directory.
-         * For items created before 01/11/2018 00:00:00 UTC, path is started with either /home or /share.
-         * For items after 01/11/2018 00:00:00 UTC, path is started with either /cluster-00N-home or /cluster-00N-share.
-         */
-        get filesRootDir() {
-            const owner = this.prop("owner");
-            const workDir = this.prop("workDir") ?? "";
-            if (this.isExternalJob) return `${owner?.slug}/${this.id}`;
-            if (new Date(this.prop("createdAt") ?? "").getTime() <= 1515628800000) return workDir;
-            const clusterAlias = this.clusterFqdn?.match(
-                /master.*(cluster-.*).(exabyte.io|mat3ra.com)/,
-            )?.[1];
-            const prefix = owner?.isPersonal ? `/${clusterAlias}-home` : `/${clusterAlias}-share`;
-            return `${prefix}/${workDir.split("/").slice(2).join("/")}`;
         },
     };
 

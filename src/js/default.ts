@@ -12,17 +12,3 @@ export function getDefaultComputeConfig(): ComputeArgumentsSchema {
         },
     };
 }
-
-export interface ExternalBucket {
-    name: string;
-    provider: string;
-    region: string;
-}
-
-export function getExternalBucket(): ExternalBucket {
-    return {
-        name: "",
-        provider: "",
-        region: "",
-    };
-}

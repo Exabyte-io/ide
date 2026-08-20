@@ -5,8 +5,7 @@ export type {
     ComputedEntityMixin,
     WithComputedEntity,
 } from "./compute";
-export { getDefaultComputeConfig, getExternalBucket } from "./default";
-export type { ExternalBucket } from "./default";
+export { getDefaultComputeConfig } from "./default";
 export { infrastructureMixin } from "./infrastructure";
 export type { InfrastructureHostSchema, InfrastructureMixin } from "./infrastructure";
 export { EMAIL_NOTIFICATION_OPTIONS_PBS, EMAIL_NOTIFICATIONS } from "./enums";

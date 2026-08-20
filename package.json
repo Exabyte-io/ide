@@ -3,13 +3,13 @@
     "version": "0.0.0",
     "description": "Infrastructure DEfinitions",
     "scripts": {
-        "test": "nyc --reporter=text mocha --recursive --bail",
+        "test": "nyc --reporter=text mocha --recursive --bail --require ts-node/register 'tests/js/**/*.ts'",
         "lint": "eslint --cache src/js tests/js && prettier --write src/js tests/js",
         "lint:fix": "eslint --fix --cache src/js tests/js && prettier --write src/js tests/js",
         "lint:staged": "lint-staged",
         "prepare": "husky install",
         "prettier": "prettier --check src/js tests/js",
-        "transpile": "babel --out-dir dist/js src/js && cp src/js/compute.d.ts dist/js/compute.d.ts",
+        "transpile": "tsc -p tsconfig-transpile.json",
         "prepublishOnly": "npm run transpile"
     },
     "repository": {
@@ -17,10 +17,10 @@
         "url": "https://github.com/Exabyte-io/ide.git"
     },
     "main": "dist/js/index.js",
+    "types": "dist/js/index.d.ts",
     "files": [
         "/dist",
-        "/src/js",
-        ".babelrc"
+        "/src/js"
     ],
     "author": "Exabyte Inc.",
     "bugs": {
@@ -29,22 +29,17 @@
     "license": "Apache-2.0",
     "homepage": "https://github.com/Exabyte-io/ide",
     "dependencies": {
-        "@babel/cli": "7.16.0",
-        "@babel/core": "7.16.0",
-        "@babel/eslint-parser": "7.16.3",
-        "@babel/plugin-proposal-class-properties": "7.16.0",
-        "@babel/preset-env": "7.16.4",
-        "@babel/preset-react": "7.16.7",
-        "@babel/register": "^7.16.0",
-        "@babel/runtime-corejs3": "7.16.8",
-        "chai": "^4.3.4",
         "moment": "^2.17.1",
         "pluralize": "^3.0.0"
     },
     "devDependencies": {
         "@mat3ra/code": "2026.8.18-0",
         "@mat3ra/esse": "2026.8.18-2",
+        "@mat3ra/tsconfig": "^2024.6.3-0",
         "@exabyte-io/eslint-config": "^2022.11.17-0",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "^20.19.43",
+        "@types/pluralize": "^0.0.33",
         "chai": "^4.3.4",
         "eslint": "7.32.0",
         "eslint-config-airbnb": "19.0.2",
@@ -61,7 +56,9 @@
         "mixwith": "^0.1.1",
         "mocha": "^9.1.3",
         "nyc": "^15.1.0",
-        "prettier": "^2.7.1"
+        "prettier": "^2.7.1",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.6.6"
     },
     "peerDependencies": {
         "@mat3ra/code": "*",

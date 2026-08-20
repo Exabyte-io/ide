@@ -24,9 +24,12 @@ export const QUEUE_TYPES = {
     gpuPSavingFast: "GPSF",
     gpuP2SavingFast: "GP2SF",
     gpuP4SavingFast: "GP4SF",
-};
+} as const;
 
-export const QUEUE_DISPLAY = {
+// Note: has more keys than esse's `job/compute.json#properties/queue` union (GPOF/GP2OF/GP4OF/
+// GPSF/GP2SF/GP4SF are not in the schema), so this stays a plain string index rather than typed
+// against that union.
+export const QUEUE_DISPLAY: Record<string, string> = {
     D: "debug (D)",
     OR: "ordinary regular (OR)",
     OR4: "4 cores ordinary regular (OR4)",
@@ -55,6 +58,7 @@ export const QUEUE_DISPLAY = {
     GP2SF: "2 GPUs saving fast (GP2SF)",
     GP4SF: "4 GPUs saving fast (GP4SF)",
 };
+
 export const ETA = {
     withinOneMin: {
         display: "within 1 min",
@@ -76,13 +80,14 @@ export const ETA = {
         display: "more than 1 hour",
         order: 50,
     },
-};
+} as const;
+
 export const TIME_LIMIT_TYPES = {
     single: "per single attempt",
     compound: "compound",
-};
+} as const;
 
 export const IS_RESTARTABLE = {
     yes: true,
     no: false,
-};
+} as const;

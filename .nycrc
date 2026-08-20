@@ -1,8 +1,19 @@
 {
     "all": true,
     "include": [
-        "src/**/*.js",
-        "src/**/*.jsx"
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "tests/**/*",
+        "**/*.test.ts",
+        "**/*.d.ts"
+    ],
+    "reporter": [
+        "text"
+    ],
+    "sourceMap": true,
+    "instrument": true,
+    "require": [
+        "ts-node/register"
     ]
 }
-

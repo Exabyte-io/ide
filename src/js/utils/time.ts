@@ -1,6 +1,8 @@
 import moment from "moment";
 
-const MULTIPLIERS = {
+type WallTimeUnit = "s" | "m" | "h" | "d";
+
+const MULTIPLIERS: Record<WallTimeUnit, number> = {
     s: 1,
     m: 60,
     h: 3600,
@@ -9,11 +11,11 @@ const MULTIPLIERS = {
 
 /**
  * @summary Converts walltime in '00:05:00' to on of the specified units - s (seconds), m (minutes), h (hours), d (days).
- * @param walltime {String} walltime in '00:05:00' format (max value '99:999:59:59' - 99 days, 999 hours, 59 minutes, 59 seconds).
- * @param units {String} s (seconds), m (minutes), h (hours).
- * @return {Number} Walltime in the specified units.
+ * @param walltime walltime in '00:05:00' format (max value '99:999:59:59' - 99 days, 999 hours, 59 minutes, 59 seconds).
+ * @param units s (seconds), m (minutes), h (hours), d (days).
+ * @return Walltime in the specified units.
  */
-export function wallTimeTo(walltime, units) {
+export function wallTimeTo(walltime: string, units: WallTimeUnit): number {
     if (["s", "m", "h", "d"].indexOf(units) < 0) {
         throw new Error(`Unexpected units - ${units}`);
     }
@@ -37,47 +39,43 @@ export function wallTimeTo(walltime, units) {
     return totalSeconds / MULTIPLIERS[units];
 }
 
-export function wallTimeToSeconds(walltime) {
+export function wallTimeToSeconds(walltime: string): number {
     return wallTimeTo(walltime, "s");
 }
 
-export function wallTimeToMinutes(walltime) {
+export function wallTimeToMinutes(walltime: string): number {
     return wallTimeTo(walltime, "m");
 }
 
-export function wallTimeToHours(walltime) {
+export function wallTimeToHours(walltime: string): number {
     return wallTimeTo(walltime, "h");
 }
 
-export function wallTimeToDays(walltime) {
+export function wallTimeToDays(walltime: string): number {
     return wallTimeTo(walltime, "d");
 }
 
 /**
  * @summary Converts python time format (e.g. 1493124101.243714) to js (1493124101243)
- * @param timestamp {Number}
- * @return {Number}
  */
-export function pythonUnixTimeToJs(timestamp) {
-    // eslint-disable-next-line radix
-    return parseInt(timestamp * 1000);
+export function pythonUnixTimeToJs(timestamp: number): number {
+    return Math.trunc(timestamp * 1000);
 }
 
 /**
  * @summary Converts days to months. 30 days equal to 1 month.
- * @param days {Number}
  */
-export function daysToMonths(days) {
+export function daysToMonths(days: number): string {
     const months = days / 30;
     return months + (months === 1 ? " month" : " months");
 }
 
-export function timestampToDate(timestamp = false, millisec = false) {
+export function timestampToDate(timestamp: number | false = false, millisec = false): string {
     return timestamp
         ? moment(timestamp * (millisec ? 1 : 1000)).format("MMM D, YYYY, HH:mm A")
         : "";
 }
 
-export function daysAgoToDate(days) {
+export function daysAgoToDate(days: number): Date {
     return moment().utc().startOf("day").subtract(days, "days").toDate();
 }

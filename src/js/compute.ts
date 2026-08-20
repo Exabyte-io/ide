@@ -2,9 +2,7 @@ import { InMemoryEntity } from "@mat3ra/code/dist/js/entity";
 import type { BaseInMemoryEntitySchema, ComputeArgumentsSchema } from "@mat3ra/esse/dist/js/types";
 import pluralize from "pluralize";
 
-import { getExternalBucket } from "./default";
 import { QUEUE_TYPES } from "./nodes/enums";
-import { wallTimeToHours } from "./utils/time";
 
 /**
  * Any compute payload ide can operate on. Defaults to esse's own `compute` arguments schema
@@ -17,7 +15,7 @@ import { wallTimeToHours } from "./utils/time";
 export type AnyComputeSchema = ComputeArgumentsSchema | undefined;
 
 /** `compute` itself, with absence stripped - what every derived getter actually reads. */
-type Compute<C extends AnyComputeSchema> = NonNullable<C>;
+export type Compute<C extends AnyComputeSchema> = NonNullable<C>;
 
 type Cluster<C extends AnyComputeSchema> = NonNullable<Compute<C>["cluster"]>;
 
@@ -31,19 +29,21 @@ type Cluster<C extends AnyComputeSchema> = NonNullable<Compute<C>["cluster"]>;
  * `undefined`) at once. Toggling it by whether `undefined extends C` is what makes all three
  * identical to their respective generated schema mixin.
  */
-type ComputeField<C extends AnyComputeSchema> = undefined extends C
+export type ComputeField<C extends AnyComputeSchema> = undefined extends C
     ? { compute?: C }
     : { compute: C };
 
-/** Instance API mixed by {@link computedEntityMixin}. */
+/**
+ * Instance API mixed by {@link computedEntityMixin} - the compute payload itself, plus everything
+ * that's purely derived from it (cluster info, queue/node/ppn readouts, compute errors). Every
+ * one of these makes sense for any entity that carries a `compute` config (Job, Workflow,
+ * Subworkflow) - see {@link import("./infrastructure").infrastructureMixin} for the
+ * Job-specific behavior (billing, cloud storage bucket, warnings) that doesn't belong here.
+ */
 export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSchema | undefined> =
     ComputeField<C> & {
         setCompute(compute: Compute<C>): void;
         unsetCompute(): void;
-        getApproximateCharge(
-            settings: { baseChargeRate: number; rateModifier?: number },
-            queueMultipliers?: Record<string, number> | null,
-        ): number;
 
         readonly clusterJid: Cluster<C>["jid"];
         readonly clusterFqdn: Cluster<C>["fqdn"];
@@ -53,13 +53,7 @@ export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSch
         readonly computePPN: number;
         readonly computeNodes: number;
         readonly computeNodesAndPPN: string;
-        readonly timePrediction: number;
         readonly errors: NonNullable<Compute<C>["errors"]>;
-        readonly hasWarnings: boolean;
-        /** Intentionally not `readonly` - hosts are meant to override this with their own getter. */
-        warnings: Array<{ condition: boolean; message: string }>;
-        readonly isExternalJob: boolean;
-        readonly bucket: string;
     };
 
 export type WithComputedEntity<
@@ -68,22 +62,15 @@ export type WithComputedEntity<
 > = T & ComputedEntityMixin<C>;
 
 /**
- * The host schema {@link computedEntityMixin} needs beyond `compute` itself and the base
- * `InMemoryEntity` fields (`_id`, `slug`, ...): `isExternal` is not part of esse's bare
- * `job`/`workflow` schemas (it comes from a host application's own further composition, e.g.
- * web-app's `webapp/job`), so a caller's concrete schema only needs to be *assignable to* this -
- * which any schema missing it (an optional field) already is.
+ * The host schema {@link computedEntityMixin} needs beyond the base `InMemoryEntity` fields
+ * (`_id`, `slug`, ...): just `compute` itself.
  */
-type ComputedEntityHostSchema<C extends AnyComputeSchema> = BaseInMemoryEntitySchema &
-    ComputeField<C> & {
-        isExternal?: boolean;
-    };
+export type ComputedEntityHostSchema<C extends AnyComputeSchema> = BaseInMemoryEntitySchema &
+    ComputeField<C>;
 
 /** What `this` resolves to inside the property literal below - same idiom as a generated `*SchemaMixin`. */
 type Self<C extends AnyComputeSchema, S extends ComputedEntityHostSchema<C>> = InMemoryEntity<S> &
-    ComputedEntityMixin<C> & {
-        _getExternalBucket?: () => ReturnType<typeof getExternalBucket>;
-    };
+    ComputedEntityMixin<C>;
 
 export function getHomeDir(isEnterprise: boolean, username: string): string {
     return isEnterprise ? `/cluster-???-share/groups/${username}` : `/cluster-???-home/${username}`;
@@ -192,62 +179,8 @@ export function computedEntityMixin<
             );
         },
 
-        getApproximateCharge(settings, queueMultipliers = null) {
-            const { timeLimit } = this;
-            if (!timeLimit) {
-                throw new Error("getApproximateCharge: compute.timeLimit is not set");
-            }
-            const timeLimitInHours = wallTimeToHours(timeLimit);
-
-            const queue = this.computeQueue;
-            const queueMultiplier = (queueMultipliers && queue && queueMultipliers[queue]) || 1;
-            const rateModifier = settings.rateModifier || 1;
-            const chargeRate = settings.baseChargeRate * rateModifier * queueMultiplier;
-
-            return chargeRate * timeLimitInHours * this.computePPN;
-        },
-
-        // eslint-disable-next-line class-methods-use-this
-        get timePrediction() {
-            return 0;
-        },
-
         get errors() {
             return this.compute?.errors ?? [];
-        },
-
-        get hasWarnings() {
-            return this.warnings.map((o) => o.condition).some((x) => x);
-        },
-
-        /*
-         * Array of warning Objects: [{condition: Boolean, message: String}]. Computed in-memory per Entity.
-         */
-        // eslint-disable-next-line class-methods-use-this
-        get warnings() {
-            return [];
-        },
-
-        set warnings(_value) {
-            // Intentionally a no-op: hosts override this getter+setter pair wholesale to supply
-            // their own warnings; this mixin's own value is always the empty-array default above.
-        },
-
-        get isExternalJob() {
-            return this.prop("isExternal", false);
-        },
-
-        /**
-         * @summary Returns the bucket name for this object storage items. Bucket name is constructed from cluster FQDN.
-         * @example master-vagrant-cluster-001.exabyte.io ==> vagrant-cluster-001
-         */
-        get bucket() {
-            if (this.isExternalJob) {
-                return this._getExternalBucket
-                    ? this._getExternalBucket().name
-                    : getExternalBucket().name;
-            }
-            return this.clusterFqdn?.match(/master-(.*).(exabyte.io|mat3ra.com)/)?.[1] ?? "";
         },
     };
 

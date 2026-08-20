@@ -4,16 +4,18 @@ import { expect } from "chai";
 
 import { type ComputedEntityMixin, computedEntityMixin } from "../../src/js/compute";
 import { getDefaultComputeConfig } from "../../src/js/default";
+import { type InfrastructureMixin, infrastructureMixin } from "../../src/js/infrastructure";
 
 type ComputerSchema = BaseInMemoryEntitySchema & { compute?: ComputeArgumentsSchema };
 
 // This interface merge is the type-level regression test for the mixin's declaration-merge
 // pattern: `compute` must be assignable to `ComputeArgumentsSchema | undefined`, mutable, and
 // identical across every interface that declares it (see `ComputedEntityMixin<C>`'s own docs).
-interface Computer extends ComputedEntityMixin<ComputeArgumentsSchema | undefined> {}
+interface Computer extends ComputedEntityMixin<ComputeArgumentsSchema | undefined>, InfrastructureMixin {}
 
 class Computer extends InMemoryEntity<ComputerSchema> {}
 computedEntityMixin<ComputeArgumentsSchema | undefined>(Computer.prototype);
+infrastructureMixin(Computer.prototype);
 
 function assertApproximateCharge(compute: ComputeArgumentsSchema, expectedCharge: number) {
     const settings = { baseChargeRate: 1 };

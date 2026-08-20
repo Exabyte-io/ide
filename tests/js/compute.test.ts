@@ -39,6 +39,14 @@ describe("Model", () => {
         assertApproximateCharge({ queue: "OR", nodes: 1, ppn: 1, timeLimit: "70:00:00" }, 70);
     });
 
+    it("applies settings.rateModifier to the approximate charge", () => {
+        const app = new Computer({
+            compute: { queue: "D", nodes: 1, ppn: 1, timeLimit: "01:00:00" },
+        });
+        const charge = app.getApproximateCharge({ baseChargeRate: 1, rateModifier: 2 }, { D: 2 });
+        expect(charge).to.equal(4);
+    });
+
     it("throws when compute.timeLimit is not set", () => {
         const app = new Computer({});
         expect(() => app.getApproximateCharge({ baseChargeRate: 1 })).to.throw(

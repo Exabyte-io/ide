@@ -41,7 +41,7 @@ export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSch
         setCompute(compute: Compute<C>): void;
         unsetCompute(): void;
         getApproximateCharge(
-            settings: { baseChargeRate: number },
+            settings: { baseChargeRate: number; rateModifier?: number },
             queueMultipliers?: Record<string, number> | null,
         ): number;
 
@@ -69,15 +69,14 @@ export type WithComputedEntity<
 
 /**
  * The host schema {@link computedEntityMixin} needs beyond `compute` itself and the base
- * `InMemoryEntity` fields (`_id`, `slug`, ...): `owner`/`isExternal` are not part of esse's bare
- * `job`/`workflow` schemas (they come from a host application's own further composition, e.g.
+ * `InMemoryEntity` fields (`_id`, `slug`, ...): `isExternal` is not part of esse's bare
+ * `job`/`workflow` schemas (it comes from a host application's own further composition, e.g.
  * web-app's `webapp/job`), so a caller's concrete schema only needs to be *assignable to* this -
- * which any schema missing these (all-optional) fields already is.
+ * which any schema missing it (an optional field) already is.
  */
 type ComputedEntityHostSchema<C extends AnyComputeSchema> = BaseInMemoryEntitySchema &
     ComputeField<C> & {
         isExternal?: boolean;
-        owner?: { serviceLevel?: { nameBasedModifier?: number } };
     };
 
 /** What `this` resolves to inside the property literal below - same idiom as a generated `*SchemaMixin`. */
@@ -202,7 +201,7 @@ export function computedEntityMixin<
 
             const queue = this.computeQueue;
             const queueMultiplier = (queueMultipliers && queue && queueMultipliers[queue]) || 1;
-            const rateModifier = this.prop("owner")?.serviceLevel?.nameBasedModifier || 1;
+            const rateModifier = settings.rateModifier || 1;
             const chargeRate = settings.baseChargeRate * rateModifier * queueMultiplier;
 
             return chargeRate * timeLimitInHours * this.computePPN;

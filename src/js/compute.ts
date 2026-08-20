@@ -1,4 +1,5 @@
-import type { ComputeArgumentsSchema } from "@mat3ra/esse/dist/js/types";
+import { InMemoryEntity } from "@mat3ra/code/dist/js/entity";
+import type { BaseInMemoryEntitySchema, ComputeArgumentsSchema } from "@mat3ra/esse/dist/js/types";
 import pluralize from "pluralize";
 
 import { getExternalBucket } from "./default";
@@ -62,22 +63,35 @@ export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSch
         readonly filesRootDir: string;
     };
 
-export type WithComputedEntity<T, C extends AnyComputeSchema = ComputeArgumentsSchema | undefined> =
-    T & ComputedEntityMixin<C>;
+export type WithComputedEntity<
+    T,
+    C extends AnyComputeSchema = ComputeArgumentsSchema | undefined,
+> = T & ComputedEntityMixin<C>;
 
-/** What {@link computedEntityMixin} reads off its host besides the mixed-in members themselves. */
-type ComputedEntityHost<C extends AnyComputeSchema> = {
-    _json: { compute?: C; isExternal?: boolean; owner?: unknown; workDir?: string };
-    _getExternalBucket?: () => ReturnType<typeof getExternalBucket>;
-    id?: string;
-    createdAt?: string | number;
-    workDir?: string;
-    owner?: { slug?: string; isPersonal?: boolean; serviceLevel?: { nameBasedModifier?: number } };
-    prop<T = unknown>(name: string, defaultValue?: T): T;
-    setProp(name: string, value: unknown): void;
-};
+/**
+ * The host schema {@link computedEntityMixin} needs beyond `compute` itself and the base
+ * `InMemoryEntity` fields (`_id`, `slug`, ...): `owner`/`isExternal`/`createdAt`/`workDir` are not
+ * part of esse's bare `job`/`workflow` schemas (they come from a host application's own further
+ * composition, e.g. web-app's `webapp/job`), so a caller's concrete schema only needs to be
+ * *assignable to* this - which any schema missing these (all-optional) fields already is.
+ */
+type ComputedEntityHostSchema<C extends AnyComputeSchema> = BaseInMemoryEntitySchema &
+    ComputeField<C> & {
+        isExternal?: boolean;
+        createdAt?: string | number;
+        workDir?: string;
+        owner?: {
+            slug?: string;
+            isPersonal?: boolean;
+            serviceLevel?: { nameBasedModifier?: number };
+        };
+    };
 
-type Self<C extends AnyComputeSchema> = ComputedEntityHost<C> & ComputedEntityMixin<C>;
+/** What `this` resolves to inside the property literal below - same idiom as a generated `*SchemaMixin`. */
+type Self<C extends AnyComputeSchema, S extends ComputedEntityHostSchema<C>> = InMemoryEntity<S> &
+    ComputedEntityMixin<C> & {
+        _getExternalBucket?: () => ReturnType<typeof getExternalBucket>;
+    };
 
 export function getHomeDir(isEnterprise: boolean, username: string): string {
     return isEnterprise ? `/cluster-???-share/groups/${username}` : `/cluster-???-home/${username}`;
@@ -105,44 +119,50 @@ export function getDefaultClusterQuota(
 }
 
 /**
- * @param prototype — typically `SomeEntity.prototype`
+ * @param item — typically `SomeEntity.prototype`
  */
-export function computedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSchema | undefined>(
-    prototype: object,
-): void {
+export function computedEntityMixin<
+    C extends AnyComputeSchema = ComputeArgumentsSchema | undefined,
+    S extends ComputedEntityHostSchema<C> = ComputedEntityHostSchema<C>,
+    T extends InMemoryEntity = InMemoryEntity,
+>(item: InMemoryEntity): asserts item is T & ComputedEntityMixin<C> {
     // @ts-expect-error — same idiom as the generated *SchemaMixin files: this object literal only
     // supplies ComputedEntityMixin's own members; the host (_json/prop/setProp) comes from
-    // whatever `prototype` actually is, so `this` below is typed via this const's annotation.
-    const computedEntityProperties: Self<C> = {
+    // whatever `item` actually is, so `this` below is typed via this const's annotation.
+    const computedEntityProperties: Self<C, S> = {
         get compute() {
-            return this.prop<C>("compute");
+            return this.prop("compute");
         },
 
+        // `setProp`'s signature (`value: S[typeof name]`) isn't call-site generic, so it can't
+        // narrow to a single field's type when `S` is itself a still-abstract generic type
+        // parameter (real gap in `code`'s own types) - write directly to `_json` instead, exactly
+        // like a generated `*SchemaMixin`'s own setter would if it had this same problem.
         set compute(value) {
-            this.setProp("compute", value);
+            this._json.compute = value;
         },
 
         setCompute(compute) {
             if (compute.queue === QUEUE_TYPES.debug) delete compute.maxCPU;
-            this.setProp("compute", compute);
+            this._json.compute = compute;
         },
 
         unsetCompute() {
-            delete this._json.compute;
+            this.unsetProp("compute");
         },
 
         /**
          * @summary Returns job ID in the Resource Management System.
          */
         get clusterJid() {
-            return this.prop<Cluster<C>["jid"]>("compute.cluster.jid");
+            return this.compute?.cluster?.jid;
         },
 
         /**
          * @summary Returns cluster fqdn, where the job was/will be calculated
          */
         get clusterFqdn() {
-            return this.prop<Cluster<C>["fqdn"]>("compute.cluster.fqdn");
+            return this.compute?.cluster?.fqdn;
         },
 
         get clusterFqdnShort() {
@@ -153,19 +173,19 @@ export function computedEntityMixin<C extends AnyComputeSchema = ComputeArgument
          * @summary Returns time limit (in seconds) set by user on job creation.
          */
         get timeLimit() {
-            return this.prop<Compute<C>["timeLimit"] | undefined>("compute.timeLimit");
+            return this.compute?.timeLimit;
         },
 
         get computeQueue() {
-            return this.prop<Compute<C>["queue"] | undefined>("compute.queue");
+            return this.compute?.queue;
         },
 
         get computePPN() {
-            return this.prop<number>("compute.ppn", 1);
+            return this.compute?.ppn ?? 1;
         },
 
         get computeNodes() {
-            return this.prop<number>("compute.nodes", 1);
+            return this.compute?.nodes ?? 1;
         },
 
         get computeNodesAndPPN() {
@@ -189,7 +209,7 @@ export function computedEntityMixin<C extends AnyComputeSchema = ComputeArgument
 
             const queue = this.computeQueue;
             const queueMultiplier = (queueMultipliers && queue && queueMultipliers[queue]) || 1;
-            const rateModifier = this.owner?.serviceLevel?.nameBasedModifier || 1;
+            const rateModifier = this.prop("owner")?.serviceLevel?.nameBasedModifier || 1;
             const chargeRate = settings.baseChargeRate * rateModifier * queueMultiplier;
 
             return chargeRate * timeLimitInHours * this.computePPN;
@@ -201,7 +221,7 @@ export function computedEntityMixin<C extends AnyComputeSchema = ComputeArgument
         },
 
         get errors() {
-            return this.prop<NonNullable<Compute<C>["errors"]>>("compute.errors", []);
+            return this.compute?.errors ?? [];
         },
 
         get hasWarnings() {
@@ -244,18 +264,17 @@ export function computedEntityMixin<C extends AnyComputeSchema = ComputeArgument
          * For items after 01/11/2018 00:00:00 UTC, path is started with either /cluster-00N-home or /cluster-00N-share.
          */
         get filesRootDir() {
-            if (this.isExternalJob) return `${this.owner?.slug}/${this.id}`;
-            if (new Date(this.createdAt ?? "").getTime() <= 1515628800000) return this.workDir ?? "";
+            const owner = this.prop("owner");
+            const workDir = this.prop("workDir") ?? "";
+            if (this.isExternalJob) return `${owner?.slug}/${this.id}`;
+            if (new Date(this.prop("createdAt") ?? "").getTime() <= 1515628800000) return workDir;
             const clusterAlias = this.clusterFqdn?.match(
                 /master.*(cluster-.*).(exabyte.io|mat3ra.com)/,
             )?.[1];
-            const prefix = this.owner?.isPersonal ? `/${clusterAlias}-home` : `/${clusterAlias}-share`;
-            return `${prefix}/${(this.workDir ?? "").split("/").slice(2).join("/")}`;
+            const prefix = owner?.isPersonal ? `/${clusterAlias}-home` : `/${clusterAlias}-share`;
+            return `${prefix}/${workDir.split("/").slice(2).join("/")}`;
         },
     };
 
-    Object.defineProperties(
-        prototype,
-        Object.getOwnPropertyDescriptors(computedEntityProperties),
-    );
+    Object.defineProperties(item, Object.getOwnPropertyDescriptors(computedEntityProperties));
 }

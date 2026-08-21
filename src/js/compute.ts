@@ -34,6 +34,15 @@ export type ComputeField<C extends AnyComputeSchema> = undefined extends C
     : { compute: C };
 
 /**
+ * `V`, unless `compute` itself might be absent (`undefined extends C`) - then `V | undefined`.
+ * `queue`/`nodes`/`ppn`/`timeLimit` are all required *within* `ComputeArgumentsSchema` (whenever
+ * `compute` exists, they exist too), so their own `| undefined` must come from `compute`'s
+ * optionality, not be tacked on unconditionally - same reasoning as {@link ComputeField}, just
+ * applied one level down instead of to `compute` itself.
+ */
+type RequiredWithCompute<C extends AnyComputeSchema, V> = undefined extends C ? V | undefined : V;
+
+/**
  * Instance API mixed by {@link computedEntityMixin} - the compute payload itself, plus everything
  * that's purely derived from it (cluster info, queue/node/ppn readouts, compute errors). Every
  * one of these makes sense for any entity that carries a `compute` config (Job, Workflow,
@@ -48,8 +57,8 @@ export type ComputedEntityMixin<C extends AnyComputeSchema = ComputeArgumentsSch
         readonly clusterJid: Cluster<C>["jid"];
         readonly clusterFqdn: Cluster<C>["fqdn"];
         readonly clusterFqdnShort: string;
-        readonly timeLimit: Compute<C>["timeLimit"] | undefined;
-        readonly computeQueue: Compute<C>["queue"] | undefined;
+        readonly timeLimit: RequiredWithCompute<C, Compute<C>["timeLimit"]>;
+        readonly computeQueue: RequiredWithCompute<C, Compute<C>["queue"]>;
         readonly computePPN: number;
         readonly computeNodes: number;
         readonly computeNodesAndPPN: string;

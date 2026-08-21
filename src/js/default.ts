@@ -1,4 +1,6 @@
-export function getDefaultComputeConfig() {
+import type { ComputeArgumentsSchema } from "@mat3ra/esse/dist/js/types";
+
+export function getDefaultComputeConfig(): ComputeArgumentsSchema {
     return {
         ppn: 1,
         nodes: 1,
@@ -8,13 +10,5 @@ export function getDefaultComputeConfig() {
         cluster: {
             fqdn: "",
         },
-    };
-}
-
-export function getExternalBucket() {
-    return {
-        name: "",
-        provider: "",
-        region: "",
     };
 }

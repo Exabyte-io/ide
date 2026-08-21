@@ -1,0 +1,4 @@
+{
+    "extends": "@mat3ra/tsconfig/tsconfig-js-py-dev.json",
+    "include": ["src/js", "tests/js"]
+}
